@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
+    {{ JSGlue.include() }}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/css/bootstrap-multiselect.css" type="text/css"/>
+    <title>MovieBuff</title>
+    <link rel = "icon" href =
+            "../static/images/MB.svg"
+          type = "image/x-icon">
+    <link rel="stylesheet" href="static/MovieBuffStyle.css">
+    <script type="text/javascript">
+        function OnloadFunction ()
+            {
+                //DUMMY QUERY TO READY MONGODB
+            $.get(
+            {url: Flask.url_for('dummyquery')});
+            }
+            $(document).ready(OnloadFunction);
+    </script>
+</head>
+<body style="background-color:black;color:silver">
+    <div class="topnav">
+    <a class="active" href="{{ url_for('home') }}" style="font-family: papyrus;font-size:25px">MovieBuff</a>
+    <a href="{{ url_for('Candice') }}" style="font-family: papyrus;font-size:25px">Chatbot</a>
+    {%if not session['login'] %}
+    <a href="{{ url_for('login') }}" style="font-family: papyrus;font-size:25px">Login</a>
+    {%else %}
+    <a href="{{ url_for('logout') }}" style="font-family: papyrus;font-size:25px">Log out</a>
+    {%endif%}
+    </div>
+<br>
+<div class="container">
+    <script>
+        var services, selectedServices, languages, selectedLanguages, genres, selectedGenres, searchCategory="Cast/Crew Name";
+    </script>
+    <div class="row justify-content-center">
+        <div class="col text-center">
+            <div class="dropdown">
+                <div class="btn-group">
+                    <select id="multiselect2" multiple="multiple">
+                        <option value="1">Netflix</option>
+                        <option value="2">Prime</option>
+                        <option value="3">Hulu</option>
+                        <option value="4">Disney</option>
+                    </select>
+                    <script type="text/javascript">
+                            $(document).ready(function() {
+                                $('#multiselect2').multiselect({
+                                    includeSelectAllOption: true,
+                                    buttonWidth: '400px',
+                                    nonSelectedText: 'Streaming Services',
+                                    allSelectedText: 'All Streaming Services',
+                                    nSelectedText: 'Streaming Services',
+                                    buttonWidth: '100%',
+                                    onChange: function(element, checked) {
+                                        services = $('#multiselect2 option:selected');
+                                        selectedServices = [];
+                                        $(services).each(function(index, services){
+                                            selectedServices.push([$(this).text()]);
+                                        });
+                                    },
+                                    onSelectAll: function() {
+                                        services = $('#multiselect2 option:selected');
+                                        selectedServices = [];
+                                        $(services).each(function(index, services){
+                                            selectedServices.push([$(this).text()]);
+                                        });
+                                    }
+                                });
+                            });
+                     </script>
+                </div>
+                <div class="btn-group">
+                    <select id="multiselect3" multiple="multiple">
+                        <option value="1">English</option>
+                        <option value="2">Spanish</option>
+                        <option value="3">German</option>
+                        <option value="4">Italian</option>
+                        <option value="5">French</option>
+                        <option value="6">Russian</option>
+                        <option value="7">Danish</option>
+                        <option value="8">Swedish</option>
+                        <option value="9">Japanese</option>
+                        <option value="10">Hindi</option>
+                        <option value="11">Mandarin</option>
+                        <option value="12">Arabic</option>
+                        <option value="13">Korean</option>
+                        <option value="14">Hebrew</option>
+                        <option value="15">Cantonese</option>
+                        <option value="16">Portugese</option>
+                        <option value="17">Latin</option>
+                        <option value="18">Ukrainian</option>
+                        <option value="19">Other</option>
+                    </select>
+                    <script type="text/javascript">
+                            $(document).ready(function() {
+                                $('#multiselect3').multiselect({
+                                    includeSelectAllOption: true,
+                                    buttonWidth: '400px',
+                                    nonSelectedText: 'Languages',
+                                    allSelectedText: 'All Languages',
+                                    nSelectedText: 'Languages',
+                                    buttonWidth: '100%',
+                                    onChange: function(element, checked) {
+                                        languages = $('#multiselect3 option:selected');
+                                        selectedLanguages = [];
+                                        $(languages).each(function(index, languages){
+                                            selectedLanguages.push([$(this).text()]);
+                                        });
+                                    },
+                                    onSelectAll: function() {
+                                        languages = $('#multiselect3 option:selected');
+                                        selectedLanguages = [];
+                                        $(languages).each(function(index, languages){
+                                            selectedLanguages.push([$(this).text()]);
+                                        });
+                                    }
+                                });
+                                $("#multiselect3").multiselect('selectAll', false);
+                                $("#multiselect3").multiselect('updateButtonText');
+                                languages = $('#multiselect3 option:selected');
+                                        selectedLanguages = [];
+                                        $(languages).each(function(index, languages){
+                                            selectedLanguages.push([$(this).text()]);
+                                        });
+                            });
+                     </script>
+                </div>
+                <div class="btn-group">
+                    <script type="text/javascript">
+                            $(document).ready(function() {
+                                $('#multiselect').multiselect({
+                                    includeSelectAllOption: true,
+                                    buttonWidth: '400px',
+                                    nonSelectedText: 'Genres',
+                                    allSelectedText: 'All Genres',
+                                    nSelectedText: 'Genres',
+                                    buttonWidth: '100%',
+                                    onChange: function(element, checked) {
+                                        genres = $('#multiselect option:selected');
+                                        selectedGenres = [];
+                                        $(genres).each(function(index, genres){
+                                            selectedGenres.push([$(this).text()]);
+                                        });
+                                    },
+                                    onSelectAll: function() {
+                                        genres = $('#multiselect option:selected');
+                                        selectedGenres = [];
+                                        $(genres).each(function(index, genres){
+                                            selectedGenres.push([$(this).text()]);
+                                        });
+                                    }
+                                });
+                                $("#multiselect").multiselect('selectAll', false);
+                                $("#multiselect").multiselect('updateButtonText');
+                                genres = $('#multiselect option:selected');
+                                        selectedGenres = [];
+                                        $(genres).each(function(index, genres){
+                                            selectedGenres.push([$(this).text()]);
+                                        });
+                            });
+                    </script>
+                    <select id="multiselect" multiple="multiple">
+                        <option value="1">Action</option>
+                        <option value="2">Adventure</option>
+                        <option value="3">Animation</option>
+                        <option value="4">Biography</option>
+                        <option value="5">Comedy</option>
+                        <option value="6">Crime</option>
+                        <option value="7">Drama</option>
+                        <option value="8">Fantasy</option>
+                        <option value="9">History</option>
+                        <option value="10">Horror</option>
+                        <option value="11">Musical</option>
+                        <option value="12">Mystery</option>
+                        <option value="13">Romance</option>
+                        <option value="14">Sci-Fi</option>
+                        <option value="15">Thriller</option>
+                        <option value="16">War</option>
+                        <option value="17">Western</option>
+                    </select>
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                        Year
+                    </button>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item">
+                                <script>
+                                  $( function() {
+                                    $( "#slider-range-year" ).slider({
+                                      range: true,
+                                      min: 1900,
+                                      max: 2021,
+                                      values: [ 1900,  2021 ],
+                                      slide: function( event, ui ) {
+                                        $( "#amountYear" ).val(ui.values[ 0 ] + " - " + ui.values[ 1 ] );
+                                      }
+                                    });
+                                    $( "#amountYear" ).val($( "#slider-range-year" ).slider( "values", 0 ) +
+                                      " - " + $( "#slider-range-year" ).slider( "values", 1 ) );
+                                  } );
+                                </script>
+                            <label for="amountYear"></label>
+                            <input type="text" id="amountYear" readonly style="border:0; color:blue; font-weight:bold;">
+                            <div id="slider-range-year"></div>
+                        </a>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                        Rating
+                    </button>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item">
+                                <script>
+                                  $( function() {
+                                    $( "#slider-range" ).slider({
+                                      range: true,
+                                      min: 0,
+                                      max: 10,
+                                      values: [ 0, 10 ],
+                                      slide: function( event, ui ) {
+                                        $( "#amount" ).val(ui.values[ 0 ] + " - " + ui.values[ 1 ] );
+                                      }
+                                    });
+                                    $( "#amount" ).val($( "#slider-range" ).slider( "values", 0 ) +
+                                      " - " + $( "#slider-range" ).slider( "values", 1 ) );
+                                  } );
+                                </script>
+                            <label for="amount">IMDb:</label>
+                            <input type="text" id="amount" readonly style="border:0; color:blue; font-weight:bold;">
+                            <div id="slider-range"></div>
+                        </a>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                        Sort by
+                    </button>
+                    <div class="dropdown-menu" id="sortSelection">
+                        <a class="dropdown-item active">Rating<a>
+                        <a class="dropdown-item">Title</a>
+                        <a class="dropdown-item">Date</a>
+                        <script>
+                            var header = document.getElementById("sortSelection");
+                            var btns = header.getElementsByClassName("dropdown-item");
+                            for (var i = 0; i < btns.length; i++) {
+                              btns[i].addEventListener("click", function() {
+                              var current = document.getElementsByClassName("dropdown-item active");
+                              current[0].className = current[0].className.replace(" active", "");
+                              this.className += " active";
+                              });
+                            }
+                        </script>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary" onclick="showResults(
+                    document.getElementById('amountYear').value, document.getElementById('amount').value,
+                    document.getElementById('sortSelection'))" style="background-color:#fff; color:#0069d9">
+                        Go
+                    </button>
+                </div>
+                <script>
+                    function showResults(yearRange, imdbRange, sort) {
+                        var sortingMethod, year, imdb;
+                        sortingMethod = sort.getElementsByClassName("dropdown-item active")[0].innerHTML;
+                        var realSortingMethod;
+                        year = yearRange.split(" - ");
+                        imdb = imdbRange.split(" - ");
+
+                        if (sortingMethod == 'Rating')
+                        {
+                            realSortingMethod = 'avg_vote';
+                        }
+                        else if(sortingMethod == 'Title')
+                        {
+                            realSortingMethod = 'title';
+                        }
+                        else
+                        {
+                            realSortingMethod = 'year';
+                        }
+
+                        var movies = {
+                        'yearStart' : year[0],
+                        'yearEnd' : year[1],
+                        'languages' : selectedLanguages,
+                        'imdbStart' : imdb[0],
+                        'imdbEnd' : imdb[1],
+                        'sorting' : realSortingMethod,
+                        'streaming' : selectedServices,
+                        'genres' : selectedGenres
+                        }
+
+                        $.ajax({
+                            url: Flask.url_for('search'),
+                            type: 'POST',
+                            data: JSON.stringify(movies),
+                            contentType: 'application/json; charset=utf-8',
+                            dataType: 'json'
+                        }).done(function(result){
+                                document.getElementById("txtHint").innerHTML = result;
+                            })
+                            .fail(function(xhr, status, error){
+                                document.getElementById("txtHint").innerHTML = xhr.responseText;
+                            });
+                    }
+                </script>
+
+            </div>
+        </div>
+        <br><br><br>
+
+    </div>
+    <div class="row justify-content-center">
+        <div class='btn-group'>
+            <script type="text/javascript">
+                $(function() {
+                    $("#autocomplete").autocomplete({
+                        source:function(request, response) {
+                            $.getJSON("{{url_for('search')}}",{
+                                q: request.term,
+                                c: searchCategory, 
+                            }, function(data) {
+                                response(data.matching_results); 
+                            });
+                        },
+                        focus: function(event, ui) {
+                            $(this).val(ui.item.label);
+                        }, 
+                        minLength: 4,
+                        delay: 1500,
+                        select: function(event, ui) {
+                            console.log(ui.item.value)
+                            $.ajax({
+                                url: Flask.url_for('search'),
+                                type: 'POST',
+                                data: JSON.stringify({"searchTerm": ui.item.label,  "searchCategory": searchCategory}),
+                                contentType: 'application/json; charset=utf-8',
+                                dataType: 'json'
+                                }).done(function(result){
+                                    document.getElementById("txtHint").innerHTML = result;
+                                })
+                                .fail(function(xhr, status, error){
+                                    document.getElementById("txtHint").innerHTML = xhr.responseText;
+                            });
+                        }
+                    });
+                })         
+            </script>
+            <input name="autocomplete" type="text" id="autocomplete" placeholder="search.." style='width:300px' class="form-control input-lg"/>
+        </div>
+        <div class='btn-group' style='width:5px'></div>
+        <div class="btn-group">
+            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                Category
+            </button>
+            <div class="dropdown-menu" id="searchCategory">
+                <a class="dropdown-item active">Cast/Crew Name<a>
+                <a class="dropdown-item">Movie Title</a>
+                <a class="dropdown-item">Description</a>
+                <script>
+                    var header = document.getElementById("searchCategory");
+                    var btns = header.getElementsByClassName("dropdown-item");
+                    for (var i = 0; i < btns.length; i++) {
+                      btns[i].addEventListener("click", function() {
+                        var current = document.getElementsByClassName("dropdown-item active");
+                        current[0].className = current[0].className.replace(" active", "");
+                        this.className += " active";
+                        console.log(current[1].text);
+                        searchCategory = current[1].text;
+                        
+                      });
+                    }
+                </script>
+            </div>
+        </div>
+    </div>
+    <div class="bufferspace" style="padding:15px">
+</div>
+<div class="row justify-content-center" id="txtHint">Movie info will be listed here...</div>
+
+
+
+
+
+</body>
+<div class="bufferspace" style="padding:25px"></div>
+</html>

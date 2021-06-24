@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
+    {{ JSGlue.include() }}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/css/bootstrap-multiselect.css" type="text/css"/>
+    <title>MovieBuff</title>
+    <link rel = "icon" href =
+            "../static/images/MB.svg"
+          type = "image/x-icon">
+    <link rel="stylesheet" href="static/MovieBuffStyle.css">
+
+</head>
+<body style="background-color:black;color:silver">
+<div class="topnav">
+    <a class="active" href="{{ url_for('home') }}" style="font-family: papyrus;font-size:25px">MovieBuff</a>
+    {%if not session['login'] %}
+    <a href="{{ url_for('login') }}" style="font-family: papyrus;font-size:25px">Login</a>
+    {%else %}
+    <a href="{{ url_for('logout') }}" style="font-family: papyrus;font-size:25px">Log out</a>
+    {%endif%}
+</div>
+<br>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="boxed">
+            <div>
+                <div id="chatbox">
+                    <img
+                            src="https://user-images.githubusercontent.com/20112458/49326597-773b7280-f57a-11e8-853d-20ed61d18b0d.png"
+                            alt="CANDICE"
+                            style="width:40px;height:40px;"
+                    />
+                    <p class="botText">
+                        <span >Hi! I'm Candice. Can I help you find a movie today?</span>
+                    </p>
+                </div>
+                <div id="userInput">
+                    <input id="textInput" type="text" name="msg" placeholder="chat with me.."/>
+                </div>
+                <div style=height:15px; ></div>
+            </div>
+            <script>
+        function getBotResponse() {
+          var rawText = $("#textInput").val();
+          var userHtml = '<p class="userText"><span>' + rawText + '</span></p>';
+          $("#textInput").val("");
+          $("#chatbox").append(userHtml);
+          document.getElementById('userInput').scrollIntoView({block: 'start', behavior: 'smooth'});
+          $.get("/getChat", { msg: rawText, prompt: "placeholder"}).done(function(data) {
+            var botHtml = '<p class="botText"><span>' + data + '</span></p>';
+            $("#chatbox").append(botHtml);
+            document.getElementById('userInput').scrollIntoView({block: 'start', behavior: 'smooth'});
+          });
+        }
+        $("#textInput").keypress(function(e) {
+            if ((e.which == 13) && document.getElementById("textInput").value != "" ){
+                getBotResponse();
+            }
+        });
+        $("#buttonInput").click(function() {
+            if (document.getElementById("textInput").value != "") {
+                getBotResponse();
+            }
+        })
+      </script>
+        </div>
+    </div>
+</div>
+<div style=height:50px; ></div>
+</body>
+</html>

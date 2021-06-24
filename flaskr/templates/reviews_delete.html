@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
+    {{ JSGlue.include() }}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/css/bootstrap-multiselect.css" type="text/css"/>
+    <title>MovieBuff</title>
+    <link rel = "icon" href =
+            "../static/images/MB.svg"
+          type = "image/x-icon">
+    <link rel="stylesheet" href="../../../static/MovieBuffStyle.css">
+
+</head>
+<body style="background-color:black;color:silver">
+<div class="topnav">
+    <a class="active" href="{{ url_for('home') }}" style="font-family: papyrus;font-size:25px">MovieBuff</a>
+    <a href="{{ url_for('Candice') }}" style="font-family: papyrus;font-size:25px">Chatbot</a>
+    {%if not session['login'] %}
+    <a href="{{ url_for('login') }}" style="font-family: papyrus;font-size:25px">Login</a>
+    {%else %}
+    <a href="{{ url_for('logout') }}" style="font-family: papyrus;font-size:25px">Log out</a>
+    {%endif%}
+</div>
+<br>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col text-center">
+            <p style=font-size:48px>{{ title }} - Reviews<br></p>
+
+            <a href="{{ url_for('reviews', moviename=titleId)}}">Back to reviews for {{ title }}</a>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        {%if imgurl|length > 0%}
+        <img src="{{ imgurl }}" alt="{{ imgurl }}" style="flex-grow:1; max-width: 300px; max-height: 500px;">
+        {%endif%}
+    </div>
+</div>
+<br>
+<div class="container">
+    <div class="row justify-content-center">
+        <table border="1">
+            <thead>
+            <tr><th>Review ID</th><th>Author ID</th><th>Score</th>
+                <th>Full Review</th><th>Date of Review</th><th>Last Updated</th></tr>
+            </thead>
+            <tbody>
+            {% for row in dbRes %}
+            <tr>
+                <td>
+                    {{ row['ReviewID'] }}
+                </td>
+                <td>
+                    {{ row['CreatedByUserID']}}
+                </td>
+                <td>
+                    {{ row['reviewscore'] }}
+                </td>
+                <td>
+                    {{ row['Review'] }}
+                </td>
+                <td>
+                    {{ row['CreatedByDate']}}
+                </td>
+                <td>
+                    {{ row['UpdatedByDate']}}
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row justify-content-center">
+        Are you sure you want to delete this review?
+        <form action="{{ url_for('reviews_delete', moviename=row['TitleID'], reviewId=row['ReviewID']) }}" method="POST">
+            <input type="submit" value="Delete"> <a href="{{ url_for('reviews', moviename=row['TitleID'])}}">Cancel</a>
+        </form>
+        {%endfor%}
+    </div>
+</div>
+
+
+
+</body>
+</html>

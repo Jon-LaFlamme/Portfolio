@@ -1,0 +1,37 @@
+<table border="1">
+    <thead>
+    <tr>
+        <th>Title</th>
+        <th>Year</th>
+        <th>Genre</th>
+        <th>Language</th>
+        <th>Rating</th>
+        {% if 'Netflix' in results[0].keys()%}
+        <th>Netflix</th>
+        <th>Hulu</th>
+        <th>Prime</th>
+        <th>Disney+</th>
+        {%endif%}
+    </tr>
+    </thead>
+    <tbody>
+    {% for i in results %}
+    <tr><td>
+        <a href="{{url_for('movie', moviename=i['imdb_title_id'])}}">
+            {{i['title']}}
+        </a>
+        </td>
+        <td>{{i['year']}}</td>
+        <td>{{i['genre']}}</td>
+        <td>{{i['language']}}</td>
+        <td>{{i['avg_vote']}}</td>
+        {% if 'Netflix' in i.keys()%}
+        <td>{{i['Netflix']}}</td>
+        <td>{{i['Hulu']}}</td>
+        <td>{{i['Prime']}}</td>
+        <td>{{i['Disney']}}</td>
+        {%endif%}
+    </tr>
+    {%endfor%}
+    </tbody>
+</table>

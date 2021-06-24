@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
+    {{ JSGlue.include() }}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/css/bootstrap-multiselect.css" type="text/css"/>
+
+
+    <title>MovieBuff</title>
+    <link rel = "icon" href =
+            "../static/images/MB.svg"
+          type = "image/x-icon">
+    <link rel="stylesheet" href="static/MovieBuffStyle.css">
+
+</head>
+<body style="background-color:black;color:silver">
+<div class="topnav">
+    <a class="active" href="{{ url_for('home') }}" style="font-family: papyrus;font-size:25px">MovieBuff</a>
+</div>
+<br>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col text-center">
+            {%if failedLogin%}
+            <div style="color:red">Login Failed, UserName or Password is incorrect</div>
+            <br><br>
+            {%endif%}
+            User Login
+            <br><br>
+            <form action="{{ url_for('login') }}" method="POST">
+                <input type="text" name="User" placeholder="UserName...">
+                <br><br>
+                <input type="password" name="Password" placeholder="Password...">
+                <br><br>
+                <input type="submit" value="Submit">
+            </form>
+            <br><br>
+            Don't have an account?
+            <br><br>
+            <a href="{{ url_for('newUser') }}">Sign Up!</a>
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+
+
+
+
+</body>
+</html>

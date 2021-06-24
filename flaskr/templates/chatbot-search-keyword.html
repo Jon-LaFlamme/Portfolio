@@ -1,0 +1,22 @@
+<table border="1">
+    <thead>
+    <tr>
+        <th>Title</th>
+        <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for i in results %}
+    <tr><td>
+        <a href="{{url_for('search_title', moviename=i['Imdb_Title_id'])}}">
+            {{i['title']}}
+        </a>
+        </td>
+        <td>{{i['description']}}</td>
+    </tr>
+    {%endfor%}
+    </tbody>
+</table>
+<div></div>
+<div></div>
+<div></div>

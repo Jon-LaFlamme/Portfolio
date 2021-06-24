@@ -1,0 +1,22 @@
+<table border="1">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Category</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for i in results %}
+    <tr><td>
+        <a href="{{ url_for('search_person', name=i['Name'] )}}">
+            {{i['Name']}}
+        </a>
+        </td>
+        <td>{{i['category']}}</td>
+    </tr>
+    {%endfor%}
+    </tbody>
+</table>
+<div></div>
+<div></div>
+<div></div>
