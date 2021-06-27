@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Narrative Viz for CS416</title>
+</head>
+<body>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <div><center><h1>33 Years of Flight Data</h1></center></div>
+<!-- http://using-d3js.com/04_04_working_with_dates.html -->
+<!-- style section-->
+<style>
+    .axis path{
+        stroke:black;
+        stroke-width:2px ;
+    }   
+
+    .axis line{
+        stroke: black;
+        stroke-width: 1.5px;
+    } 
+ 
+    .axis text{
+        fill: black;
+        font-weight: bold;
+        font-size: 14px;
+        font-family:"Arial Black", Gadget, sans-serif;
+    } 
+
+    .legend text{
+        fill:  black;
+        font-family:"Arial Black", Gadget, sans-serif;
+    }
+ </style>
+
+<script>
+
+
+
+// Time Parsing & Formating functions 
+// REF: http://using-d3js.com/04_04_working_with_dates.html
+const parseTime = d3.timeParse("%Y %m")    //Str to date
+const formatTime = d3.timeFormat("%b, %Y")  //Date to Str
+
+// set the dimensions and margins of the graph
+const MARGIN = {TOP: 20, RIGHT: 20, BOTTOM: 120, LEFT: 100}
+const WIDTH = 18000 - MARGIN.LEFT - MARGIN.RIGHT
+const HEIGHT = 500 - MARGIN.TOP - MARGIN.BOTTOM
+
+// Set the SVG
+const svg = d3.select("body").append("svg")
+    .attr("width", WIDTH + MARGIN.LEFT + MARGIN.RIGHT)
+    .attr("height", HEIGHT + MARGIN.TOP + MARGIN.BOTTOM)
+
+var g = svg.append("g")
+    .attr("transform", `translate(${MARGIN.LEFT}, ${MARGIN.TOP})`)
+
+// Set x,y range    
+let x = d3.scaleTime().range([0, WIDTH])
+let y = d3.scaleLinear().range([HEIGHT, 0])
+
+// Set some globals
+let dates = []
+let counts = []
+let carriers = new Set()
+const carrierColor = d3.scaleOrdinal(d3.schemePaired)
+
+//load the data, receive a promise
+let data = d3.json("static/data/flights2.json")
+
+
+//Format the data, determine domains
+data.then(function(d) {
+  dates = []
+  counts = []
+  carriers = new Set()
+  d.forEach(function(f){
+      let temp = parseTime(f.date)
+      dates.push(temp)
+      f.date = temp
+      counts.push(f.count) 
+      carriers.add(f.UniqueCarrier)
+  })
+  x.domain(d3.extent(dates))
+  y.domain(d3.extent(counts))
+  console.log(carriers)
+  console.log(d[0])
+})
+
+// Plot the Lines
+data.then(f => {
+
+    // define the line
+    const valueline = d3.line()
+        .x(d => x(d.date))
+        .y(d => y(d.count))
+
+    // Tooltip
+    // const tip = d3.tip()
+    //     .attr('class', 'd3-tip')
+	//     .html(d => {
+	// 	    let text = `<strong>Airline:</strong> <span style='color:red;text-transform:capitalize'>${d.UniqueCarrier}</span><br>`
+	// 	    text += `<strong>Total Flights:</strong> <span style='color:red'>${d3.format(",.0f")(d.count)}</span><br>`
+	// 	    return text
+	//     })
+    //g.call(tip)    
+        
+    var groupedCarriers = d3.group(f, d => d.UniqueCarrier)
+    console.log(groupedCarriers)
+    console.log(Array.from(groupedCarriers.values())[0])
+
+    //top10, stragglers, color
+    function colorAssign(c,i){
+        if (i < 10){ return carrierColor(i)}
+        else { return "#cccccc"} 
+    }
+    
+    
+    //(c ? carrierColor(c): "#cccccc")
+
+    g.selectAll(".line")
+        .data(Array.from(groupedCarriers.values()))
+        .enter()
+        .append("path")
+        .attr("class", "line")
+        .attr('d', valueline)
+        .attr('stroke', colorAssign)
+        .attr("stroke-width", "3px") 
+        .attr("fill", "none")
+        // .call(tip)
+        // .on("mouseover", tip.show)
+		// .on("mouseout", tip.hide)
+
+}) 
+
+// Configure the Axes and Labels
+data.then(f => {
+    // X Label
+    // g.append("text")
+    //     .attr("class", "x axis-label")
+    //     .attr("x", WIDTH / 2)
+    //     .attr("y", HEIGHT + 110)
+    //     .attr("font-size", "20px")
+    //     .attr("text-anchor", "middle")
+    //     .attr("33 Years of Flight Data")
+
+    // Y Label
+    // g.append("text")
+    //     .attr("class", "y axis-label")
+    //     .attr("x", - (HEIGHT / 2))
+    //     .attr("y" - 10)
+    //     .attr("font-size", "20px")
+    //     .attr("text-anchor", "middle")
+    //     .attr("transform", "rotate(-90)")
+    //     .text("Number Flights per Month per Carrier")
+
+    // Define the X, Y Axis calls
+    const xAxisCall = d3.axisBottom(x).tickFormat(f => formatTime(f))
+    const yAxisCall = d3.axisLeft(y) 
+
+    // Add the x and y axes to our graph
+    g.append("g")
+            .attr('class', 'x axis')
+            .attr("transform", `translate(0, ${HEIGHT})`)
+            .call(xAxisCall.ticks(240))
+            .selectAll("text")
+                .attr("y", "10")
+                .attr("x", "-5")
+                .attr("text-anchor", "end")
+                .attr("transform", "rotate(-40)")
+
+    g.append("g")
+            .attr('class', 'y axis')
+            .call(yAxisCall)
+})
+
+// Configure the Legend
+data.then(f => {
+    let top10 = Array.from(carriers).slice(0,10)
+    let stragglers = Array.from(carriers).slice(10,-1)
+    top10.push("Other")
+    console.log(top10)
+    console.log(stragglers)
+    let legend = g.append("g")
+        .attr("transform", `translate(${WIDTH - WIDTH + 50}, ${HEIGHT - HEIGHT})`)
+    top10.forEach((c, i) => {
+	    const legendRow = legend.append("g")
+		    .attr("transform", `translate(0, ${i * 20})`)
+
+        let color = (c != "Other" ? carrierColor(c): "#cccccc")
+        legendRow.append("rect")
+            .attr("width", 10)
+            .attr("height", 10)
+            .attr("fill", color)
+
+        legendRow.append("text")
+            .attr("x", -10)
+            .attr("y", 10)
+            .attr("text-anchor", "end")
+            .style("text-transform", "capitalize")
+            .text(c)
+    })
+})
+
+</script>
+</body>
+</html>
