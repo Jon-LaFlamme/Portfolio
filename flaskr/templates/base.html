@@ -45,6 +45,7 @@
     let carriers = new Set()
     let tickFormat = d3.tickFormat(".0s")
     var formatNumber = d3.format(",d")
+    let lastDate = null
     const svg = d3.select("svg")
         .attr("viewBox", [0, 0, width, height]);
     //const updateTicker = setTicker(svg);
@@ -150,6 +151,14 @@
         };
     }
     function setTicker(svg, keyFrames) {
+        try {console.log(keyFrames[0][0])
+            var date = keyFrames[0][0]
+            lastDate = date}
+        catch (error) {
+            console.error(error)
+            console.log("corrupt date field: " + lastDate + " used instead.")
+            var date = lastDate
+        }   
         const now = svg.append("text")
             .style("font", `bold ${barSize}px var(--sans-serif)`)
             .style("font-variant-numeric", "tabular-nums")
@@ -157,7 +166,7 @@
             .attr("x", width - 6)
             .attr("y", margin.top + barSize * (n - 0.45))
             .attr("dy", "0.32em")
-            .text(formatDate(keyFrames[0][0]));
+            .text(formatDate(date));
 
         return ([date], transition) => {
             transition.end().then(() => now.text(formatDate(date)));
@@ -179,11 +188,10 @@
         };
     }
     async function chart(){
-        //replay;
         const updateBars = setBars(svg);
         const updateAxis = setAxis(svg);
         const updateLabels = setLabels(svg);
-        //const updateTicker = setTicker(svg);
+        const updateTicker = setTicker(svg);  //Is Causing Error Right Now
 
         for (const keyframe of keyFrames) {
         const transition = svg.transition()
@@ -198,10 +206,9 @@
         updateLabels(keyframe, transition);
         //updateTicker(keyframe, transition);
 
-        return svg.node()
-
-        invalidation.then(() => svg.interrupt());
+        // invalidation.then(() => svg.interrupt());  //Invalidation is an ObervableHQ method. ignore.
         await transition.end();
+        return svg.node()
         }
         
     }
