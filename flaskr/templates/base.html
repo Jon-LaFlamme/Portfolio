@@ -12,11 +12,10 @@
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <div><center><h2>33 Years of Flight Data</h2></center></div>
     <button id='reset' type="button" onclick=chart()>Reset</button>
-    <button id='pause' type="button" onclick=idle()>Pause</button>
     <input type="range" min="1" max="10" step="1" value="3" 
            data-orientation="vertical" oninput=setDuration(value)>
 
-    <svg></svg>
+    <svg preserveAspectRatio="xMidYMid meet"></svg>
 
 <!-- style section-->
 <style></style>
@@ -27,7 +26,7 @@
     
     //************** RangeSlider Adjust Playback Speed *****************
     function setDuration(t){
-        let dict = {1:300,2:250,3:200,4:150,5:100,6:75,7:50,8:25,9:10,10:1}
+        let dict = {1:300,2:250,3:200,4:150,5:100,6:50,7:10,8:1,9:.1,10:.01}
         duration = dict[t]
     }
     
@@ -58,6 +57,7 @@
     //const updateTicker = setTicker(svg);
     const parseTime = d3.timeParse("%Y %m")    //Str to date
     const formatDate = d3.timeFormat("%Y")  //Date to Str
+    const formatDate2 = d3.timeFormat("%b, %Y")  //Date to Str
     const carrierColor = d3.scaleOrdinal(d3.schemePaired)
     const transition = svg.transition().duration(duration).ease(d3.easeLinear);
 
@@ -196,6 +196,9 @@
         };
     }
     async function chart(){
+        // Text event controllers
+        let sept11 = true
+
         svg.selectAll("*").remove()
         const updateBars = setBars(svg);
         const updateAxis = setAxis(svg);
@@ -206,6 +209,25 @@
             const transition = svg.transition()
             .duration(duration)
             .ease(d3.easeLinear);
+
+            // Add A Sample text event:
+            //console.log(formatDate(keyframe[0]))
+            //console.log(formatDate2(keyframe[0]))
+            if (formatDate2(keyframe[0])==='Aug, 2001' && sept11){
+                console.log("success")
+                console.log(keyframe)
+                sept11 = false
+                svg.append("text")
+                    .attr('id', "terror")
+                    .attr("x", 350)
+                    .attr("y", 350)
+                    .text("September 11, 2001 Terrorist Attacks.")
+            }
+            if (formatDate2(keyframe[0])==='Aug, 2003'){
+                svg.select("#terror").remove()
+            }
+
+
 
             // Extract the top bar’s value.
             x.domain([0, keyframe[1][0].value]);
@@ -243,7 +265,7 @@
         updateLabels = setLabels(svg)
         updateTicker = setTicker(svg, keyFrames)
 
-        chart()
+        chart()     //Automatically Plays when browser loads
     })
 
 
