@@ -12,16 +12,14 @@
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <div><center><h2>33 Years of Flight Data</h2></center></div>
     <button id='reset' type="button" onclick=chart()>Reset</button>
-    <input type="range" min="1" max="10" step="1" value="5" 
+    <button id='pause' type="button" onclick=idle()>Pause</button>
+    <input type="range" min="1" max="10" step="1" value="3" 
            data-orientation="vertical" oninput=setDuration(value)>
+
     <svg></svg>
-<!-- http://using-d3js.com/04_04_working_with_dates.html -->
+
 <!-- style section-->
-<style>
-
-</style>
-
-
+<style></style>
 
 <!-- Code adapted from @Mike Bostock's Race Chart: 
     https://observablehq.com/@d3/bar-chart-race-explained-->
@@ -43,7 +41,7 @@
     const margin = {top: 16, right: 100, bottom: 6, left: 50}
     const width = 900 - margin.left - margin.right
     const height = margin.top + barSize * n + margin.bottom
-    let duration = 1
+    let duration = 200
     let x = d3.scaleLinear([0, 1], [margin.left, width - margin.right])
     let y = d3.scaleBand()
         .domain(d3.range(n + 1))
