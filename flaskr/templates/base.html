@@ -5,16 +5,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-    <script src="https://rangeslider.min.js">//https://rangeslider.js.org/</script>
-    <script src="templates/js/main.js"></script>
+    <script src="static/js/raceChart.js"></script>
     <title>Narrative Viz for CS416</title>
 </head>
 <body>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <div><center><h2>33 Years of Flight Data</h2></center></div>
     <button id='reset' type="button" onclick=chart()>Reset</button>
-    <input type="range" min="10" max="1000" step="10" value="500" 
-           data-orientation="vertical">
+    <input type="range" min="1" max="10" step="1" value="5" 
+           data-orientation="vertical" oninput=setDuration(value)>
     <svg></svg>
 <!-- http://using-d3js.com/04_04_working_with_dates.html -->
 <!-- style section-->
@@ -26,18 +25,12 @@
 
 <!-- Code adapted from @Mike Bostock's Race Chart: 
     https://observablehq.com/@d3/bar-chart-race-explained-->
-<script>
-    //************** Setup RangeSlider *****************
-
-
-
+<script type="text/javascript">
     
+    //************** RangeSlider Adjust Playback Speed *****************
     function setDuration(t){
-        console.log(t)
-        let denom = Number(t)
-        let numer = 1000
-        duration = numer/denom
-        console.log(duration)
+        let dict = {1:300,2:250,3:200,4:150,5:100,6:75,7:50,8:25,9:10,10:1}
+        duration = dict[t]
     }
     
     //************ Data *******************
