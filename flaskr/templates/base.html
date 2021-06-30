@@ -189,6 +189,7 @@
         };
     }
     async function chart(){
+        svg.selectAll("*").remove()
         const updateBars = setBars(svg);
         const updateAxis = setAxis(svg);
         const updateLabels = setLabels(svg);
