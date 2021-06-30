@@ -30,8 +30,8 @@
     let n = 11
     let k = 10
     let barSize = 48
-    const margin = {top: 16, right: 6, bottom: 6, left: 0}
-    const width = 1800 - margin.left - margin.right
+    const margin = {top: 16, right: 100, bottom: 6, left: 50}
+    const width = 900 - margin.left - margin.right
     const height = margin.top + barSize * n + margin.bottom
     let duration = 250
     let x = d3.scaleLinear([0, 1], [margin.left, width - margin.right])
@@ -88,7 +88,7 @@
             .data(data.slice(0, n), d => d.name)
             .join(
                 enter => enter.append("rect")
-                    .attr("fill", "black")
+                    .attr("fill", setColor(data))
                     .attr("height", y.bandwidth())
                     .attr("x", x(0))
                     .attr("y", d => y((prev.get(d) || d).rank))
