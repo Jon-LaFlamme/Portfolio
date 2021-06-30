@@ -169,6 +169,7 @@
             .text(formatDate(date));
 
         return ([date], transition) => {
+            //TODO FIX the Date Format Issue for the Ticker. 
             transition.end().then(() => now.text(formatDate(date)));
         };
     }
@@ -191,25 +192,26 @@
         const updateBars = setBars(svg);
         const updateAxis = setAxis(svg);
         const updateLabels = setLabels(svg);
-        const updateTicker = setTicker(svg);  //Is Causing Error Right Now
+        const updateTicker = setTicker(svg);  
 
         for (const keyframe of keyFrames) {
-        const transition = svg.transition()
+            const transition = svg.transition()
             .duration(duration)
             .ease(d3.easeLinear);
 
-        // Extract the top bar’s value.
-        x.domain([0, keyframe[1][0].value]);
+            // Extract the top bar’s value.
+            x.domain([0, keyframe[1][0].value]);
 
-        updateAxis(keyframe, transition);
-        updateBars(keyframe, transition);
-        updateLabels(keyframe, transition);
-        //updateTicker(keyframe, transition);
+            updateAxis(keyframe, transition);
+            updateBars(keyframe, transition);
+            updateLabels(keyframe, transition);
+            updateTicker(keyframe, transition);
 
-        // invalidation.then(() => svg.interrupt());  //Invalidation is an ObervableHQ method. ignore.
-        await transition.end();
-        return svg.node()
+            // invalidation.then(() => svg.interrupt());  //Invalidation is an ObervableHQ method. ignore.
+            await transition.end();
+            
         }
+        return svg.node()
         
     }
 
