@@ -33,6 +33,28 @@
         fill:  black;
         font-family:"Arial Black", Gadget, sans-serif;
     }
+
+    .overlay {
+        fill: none;
+        pointer-events: all;
+    }
+
+    .focus circle {
+        fill: black;
+    }
+
+    .focus text {
+        font-size: 14px;
+    }
+
+    .tooltip {
+        fill: white;
+        stroke: #000;
+    }
+
+    .tooltip-date, .tooltip-likes {
+        font-weight: bold;
+    }
  </style>
 
 <script>
@@ -97,29 +119,78 @@ data.then(f => {
         .x(d => x(d.date))
         .y(d => y(d.count))
 
-    // Tooltip
-    // const tip = d3.tip()
-    //     .attr('class', 'd3-tip')
-	//     .html(d => {
-	// 	    let text = `<strong>Airline:</strong> <span style='color:red;text-transform:capitalize'>${d.UniqueCarrier}</span><br>`
-	// 	    text += `<strong>Total Flights:</strong> <span style='color:red'>${d3.format(",.0f")(d.count)}</span><br>`
-	// 	    return text
-	//     })
-    //g.call(tip)    
-        
+    //Grouping  
     var groupedCarriers = d3.group(f, d => d.UniqueCarrier)
     console.log(groupedCarriers)
     console.log(Array.from(groupedCarriers.values())[0])
 
-    //top10, stragglers, color
     function colorAssign(c,i){
         if (i < 10){ return carrierColor(i)}
         else { return "#cccccc"} 
     }
     
+    // Tooltip Adapted from: REF: https://bl.ocks.org/Qizly/8f6ba236b79d9bb03a80
+    // Tooltip Focus
+    var focus = svg.append("g")
+            .attr("class", "focus")
+            .style("display", "none")
+    // Tooltip Marker
+    focus.append("circle")
+            .attr("r", 5)
+    //Tooltip Box
+    focus.append("rect")
+            .attr("class", "tooltip")
+            .attr("width", 100)
+            .attr("height", 50)
+            .attr("x", 10)
+            .attr("y", -22)
+            .attr("rx", 4)
+            .attr("ry", 4)
+    //Tooltip Content
+    focus.append("text")
+            .attr("class", "tooltip-date")
+            .attr("x", 18)
+            .attr("y", -2)
+    focus.append("text")
+            .attr("x", 18)
+            .attr("y", 18)
+            .text("Likes:")   
+    focus.append("text")
+            .attr("class", "tooltip-likes")
+            .attr("x", 60)
+            .attr("y", 18)
+    g.append('rect')
+        .attr("class", "overlay")
+            .attr("width", WIDTH)
+            .attr("height", HEIGHT)
+            .on("mouseover", function() { focus.style("display", null); })
+            .on("mouseout", function() { focus.style("display", "none"); })
+            .on("mousemove", mousemove)
+    //MouseMove function
+    function mousemove() {
+            console.log(event)
+            var xPos = event.clientX - 5
+            var yPos = event.clientY - 75
+            console.log(bisectDate(data))
+            focus.attr("transform", "translate("+ xPos + "," + adj + ")");
+            focus.select(".tooltip-date").text(dateFormatter(d.date));
+            focus.select(".tooltip-likes").text(formatValue(d.count));
+        }
+    //bisectDate Function
+    const bisectDate = d3.bisector(function(d) { return d.date; }).left
+    const bisectCount = d3.bisector(function(d) { return d.date; }).left
     
-    //(c ? carrierColor(c): "#cccccc")
+    //Function to append a path to svg
+    function append_path(d) {
+        g.append("path")
+          .datum(d) 
+          .attr("class", "line") 
+          .style("stroke", "rgb(0, 123, 255)")
+          .attr("d", valueLine); 
+      }
 
+
+    //Plotting the Lines
     g.selectAll(".line")
         .data(Array.from(groupedCarriers.values()))
         .enter()
@@ -129,9 +200,6 @@ data.then(f => {
         .attr('stroke', colorAssign)
         .attr("stroke-width", "3px") 
         .attr("fill", "none")
-        // .call(tip)
-        // .on("mouseover", tip.show)
-		// .on("mouseout", tip.hide)
 
 }) 
 

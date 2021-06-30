@@ -9,259 +9,229 @@
 <body>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <div><center><h1>33 Years of Flight Data</h1></center></div>
+    <svg></svg>
 <!-- http://using-d3js.com/04_04_working_with_dates.html -->
 <!-- style section-->
 <style>
-    .axis path{
-        stroke:black;
-        stroke-width:2px ;
-    }   
 
-    .axis line{
-        stroke: black;
-        stroke-width: 1.5px;
-    } 
- 
-    .axis text{
-        fill: black;
-        font-weight: bold;
-        font-size: 14px;
-        font-family:"Arial Black", Gadget, sans-serif;
-    } 
+</style>
 
-    .legend text{
-        fill:  black;
-        font-family:"Arial Black", Gadget, sans-serif;
-    }
 
-    .overlay {
-        fill: none;
-        pointer-events: all;
-    }
 
-    .focus circle {
-        fill: black;
-    }
-
-    .focus text {
-        font-size: 14px;
-    }
-
-    .tooltip {
-        fill: white;
-        stroke: #000;
-    }
-
-    .tooltip-date, .tooltip-likes {
-        font-weight: bold;
-    }
- </style>
-
+<!-- Code adapted from @Mike Bostock's Race Chart: 
+    https://observablehq.com/@d3/bar-chart-race-explained-->
 <script>
+    
+    
+    //************ Data *******************
+    let data = d3.json("static/data/flights2.json")
 
+    //************ Variables *******************
+    let n = 11
+    let k = 10
+    let barSize = 48
+    const margin = {top: 16, right: 6, bottom: 6, left: 0}
+    const width = 1800 - margin.left - margin.right
+    const height = margin.top + barSize * n + margin.bottom
+    let duration = 250
+    let x = d3.scaleLinear([0, 1], [margin.left, width - margin.right])
+    let y = d3.scaleBand()
+        .domain(d3.range(n + 1))
+        .rangeRound([margin.top, margin.top + barSize * (n + 1 + 0.1)])
+        .padding(0.1)
+    let dates = []
+    let counts = []
+    let carriers = new Set()
+    let tickFormat = d3.tickFormat(".0s")
+    var formatNumber = d3.format(",d")
+    const svg = d3.select("svg")
+        .attr("viewBox", [0, 0, width, height]);
+    //const updateTicker = setTicker(svg);
+    const parseTime = d3.timeParse("%Y %m")    //Str to date
+    const formatDate = d3.timeFormat("%Y")  //Date to Str
+    const carrierColor = d3.scaleOrdinal(d3.schemePaired)
+    const transition = svg.transition().duration(duration).ease(d3.easeLinear);
 
-
-// Time Parsing & Formating functions 
-// REF: http://using-d3js.com/04_04_working_with_dates.html
-const parseTime = d3.timeParse("%Y %m")    //Str to date
-const formatTime = d3.timeFormat("%b, %Y")  //Date to Str
-
-// set the dimensions and margins of the graph
-const MARGIN = {TOP: 20, RIGHT: 20, BOTTOM: 120, LEFT: 100}
-const WIDTH = 18000 - MARGIN.LEFT - MARGIN.RIGHT
-const HEIGHT = 500 - MARGIN.TOP - MARGIN.BOTTOM
-
-// Set the SVG
-const svg = d3.select("body").append("svg")
-    .attr("width", WIDTH + MARGIN.LEFT + MARGIN.RIGHT)
-    .attr("height", HEIGHT + MARGIN.TOP + MARGIN.BOTTOM)
-
-var g = svg.append("g")
-    .attr("transform", `translate(${MARGIN.LEFT}, ${MARGIN.TOP})`)
-
-// Set x,y range    
-let x = d3.scaleTime().range([0, WIDTH])
-let y = d3.scaleLinear().range([HEIGHT, 0])
-
-// Set some globals
-let dates = []
-let counts = []
-let carriers = new Set()
-const carrierColor = d3.scaleOrdinal(d3.schemePaired)
-
-//load the data, receive a promise
-let data = d3.json("static/data/flights2.json")
-
-
-//Format the data, determine domains
-data.then(function(d) {
-  dates = []
-  counts = []
-  carriers = new Set()
-  d.forEach(function(f){
-      let temp = parseTime(f.date)
-      dates.push(temp)
-      f.date = temp
-      counts.push(f.count) 
-      carriers.add(f.UniqueCarrier)
-  })
-  x.domain(d3.extent(dates))
-  y.domain(d3.extent(counts))
-  console.log(carriers)
-  console.log(d[0])
-})
-
-// Plot the Lines
-data.then(f => {
-
-    // define the line
-    const valueline = d3.line()
-        .x(d => x(d.date))
-        .y(d => y(d.count))
-
-    //Grouping  
-    var groupedCarriers = d3.group(f, d => d.UniqueCarrier)
-    console.log(groupedCarriers)
-    console.log(Array.from(groupedCarriers.values())[0])
-
-    function colorAssign(c,i){
-        if (i < 10){ return carrierColor(i)}
-        else { return "#cccccc"} 
+    // *********** Functions ************** 
+    function rank(value) {
+        const data = Array.from(carriers, name => ({name, value: value(name)}));
+        data.sort((a, b) => d3.descending(a.value, b.value));
+        for (let i = 0; i < data.length; ++i) data[i].rank = Math.min(n, i);
+        return data;
     }
-    
-    // Tooltip Adapted from: REF: https://bl.ocks.org/Qizly/8f6ba236b79d9bb03a80
-    // Tooltip Focus
-    var focus = svg.append("g")
-            .attr("class", "focus")
-            .style("display", "none")
-    // Tooltip Marker
-    focus.append("circle")
-            .attr("r", 5)
-    //Tooltip Box
-    focus.append("rect")
-            .attr("class", "tooltip")
-            .attr("width", 100)
-            .attr("height", 50)
-            .attr("x", 10)
-            .attr("y", -22)
-            .attr("rx", 4)
-            .attr("ry", 4)
-    //Tooltip Content
-    focus.append("text")
-            .attr("class", "tooltip-date")
-            .attr("x", 18)
-            .attr("y", -2)
-    focus.append("text")
-            .attr("x", 18)
-            .attr("y", 18)
-            .text("Likes:")   
-    focus.append("text")
-            .attr("class", "tooltip-likes")
-            .attr("x", 60)
-            .attr("y", 18)
-    g.append('rect')
-        .attr("class", "overlay")
-            .attr("width", WIDTH)
-            .attr("height", HEIGHT)
-            .on("mouseover", function() { focus.style("display", null); })
-            .on("mouseout", function() { focus.style("display", "none"); })
-            .on("mousemove", mousemove)
-    //MouseMove function
-    function mousemove() {
-            console.log(event)
-            var xPos = event.clientX - 5
-            var yPos = event.clientY
-            var adj = yPos - 75
-            console.log(yPos)
-            console.log(adj)
-            focus.attr("transform", "translate("+ xPos + "," + adj + ")");
-            focus.select(".tooltip-date").text(dateFormatter(d.date));
-            focus.select(".tooltip-likes").text(formatValue(d.count));
+    function frameKeys(datevalues){
+        const keyframes = [];
+        let ka, a, kb, b;
+        for ([[ka, a], [kb, b]] of d3.pairs(datevalues)) {
+            for (let i = 0; i < k; ++i) {
+                const t = i / k;
+                keyframes.push([
+                    new Date(ka * (1 - t) + kb * t),
+                    rank(name => (a.get(name) || 0) * (1 - t) + (b.get(name) || 0) * t)
+                ]);
+            }
         }
-    //bisectDate Function
-    const bisectDate = d3.bisector(function(d) { return d.date; }).left
-    
-    //Plotting the Lines
-    g.selectAll(".line")
-        .data(Array.from(groupedCarriers.values()))
-        .enter()
-        .append("path")
-        .attr("class", "line")
-        .attr('d', valueline)
-        .attr('stroke', colorAssign)
-        .attr("stroke-width", "3px") 
-        .attr("fill", "none")
+        keyframes.push([new Date(kb), rank(name => b.get(name) || 0)]);
+        return keyframes;
+    }
+    function valueDates(data){
+        return Array.from(d3.rollup(data, ([d]) => d.count, d => +d.date, d => d.UniqueCarrier))
+            .map(([date, data]) => [new Date(date), data])
+            .sort(([a], [b]) => d3.ascending(a, b))
+    }
+    function setBars(svg){
+        let bar = svg.append("g")
+            .attr("fill-opacity", 0.6)
+            .selectAll("rect");
 
-}) 
-
-// Configure the Axes and Labels
-data.then(f => {
-    // X Label
-    // g.append("text")
-    //     .attr("class", "x axis-label")
-    //     .attr("x", WIDTH / 2)
-    //     .attr("y", HEIGHT + 110)
-    //     .attr("font-size", "20px")
-    //     .attr("text-anchor", "middle")
-    //     .attr("33 Years of Flight Data")
-
-    // Y Label
-    // g.append("text")
-    //     .attr("class", "y axis-label")
-    //     .attr("x", - (HEIGHT / 2))
-    //     .attr("y" - 10)
-    //     .attr("font-size", "20px")
-    //     .attr("text-anchor", "middle")
-    //     .attr("transform", "rotate(-90)")
-    //     .text("Number Flights per Month per Carrier")
-
-    // Define the X, Y Axis calls
-    const xAxisCall = d3.axisBottom(x).tickFormat(f => formatTime(f))
-    const yAxisCall = d3.axisLeft(y) 
-
-    // Add the x and y axes to our graph
-    g.append("g")
-            .attr('class', 'x axis')
-            .attr("transform", `translate(0, ${HEIGHT})`)
-            .call(xAxisCall.ticks(240))
-            .selectAll("text")
-                .attr("y", "10")
-                .attr("x", "-5")
-                .attr("text-anchor", "end")
-                .attr("transform", "rotate(-40)")
-
-    g.append("g")
-            .attr('class', 'y axis')
-            .call(yAxisCall)
-})
-
-// Configure the Legend
-data.then(f => {
-    let top10 = Array.from(carriers).slice(0,10)
-    let stragglers = Array.from(carriers).slice(10,-1)
-    top10.push("Other")
-    console.log(top10)
-    console.log(stragglers)
-    let legend = g.append("g")
-        .attr("transform", `translate(${WIDTH - WIDTH + 50}, ${HEIGHT - HEIGHT})`)
-    top10.forEach((c, i) => {
-	    const legendRow = legend.append("g")
-		    .attr("transform", `translate(0, ${i * 20})`)
-
-        let color = (c != "Other" ? carrierColor(c): "#cccccc")
-        legendRow.append("rect")
-            .attr("width", 10)
-            .attr("height", 10)
-            .attr("fill", color)
-
-        legendRow.append("text")
-            .attr("x", -10)
-            .attr("y", 10)
+        return ([date, data], transition) => bar = bar
+            .data(data.slice(0, n), d => d.name)
+            .join(
+                enter => enter.append("rect")
+                    .attr("fill", "black")
+                    .attr("height", y.bandwidth())
+                    .attr("x", x(0))
+                    .attr("y", d => y((prev.get(d) || d).rank))
+                    .attr("width", d => x((prev.get(d) || d).value) - x(0)),
+                update => update,
+                exit => exit.transition(transition).remove()
+                    .attr("y", d => y((next.get(d) || d).rank))
+                    .attr("width", d => x((next.get(d) || d).value) - x(0))
+            )
+            .call(bar => bar.transition(transition)
+                .attr("y", d => y(d.rank))
+                .attr("width", d => x(d.value) - x(0)));
+    }
+    function setLabels(svg){
+        let label = svg.append("g")
+            .style("font", "bold 12px var(--sans-serif)")
+            .style("font-variant-numeric", "tabular-nums")
             .attr("text-anchor", "end")
-            .style("text-transform", "capitalize")
-            .text(c)
+            .selectAll("text");
+
+        return ([date, data], transition) => label = label
+            .data(data.slice(0, n), d => d.name)
+            .join(
+                enter => enter.append("text")
+                    .attr("transform", d => `translate(${x((prev.get(d) || d).value)},${y((prev.get(d) || d).rank)})`)
+                    .attr("y", y.bandwidth() / 2)
+                    .attr("x", -6)
+                    .attr("dy", "-0.25em")
+                    .text(d => d.name)
+                    .call(text => text.append("tspan")
+                        .attr("fill-opacity", 0.7)
+                        .attr("font-weight", "normal")
+                        .attr("x", -6)
+                        .attr("dy", "1.15em")),
+                update => update,
+                exit => exit.transition(transition).remove()
+                    .attr("transform", d => `translate(${x((next.get(d) || d).value)},${y((next.get(d) || d).rank)})`)
+                    .call(g => g.select("tspan").tween("text", d => textTween(d.value, (next.get(d) || d).value)))
+            )
+            .call(bar => bar.transition(transition)
+            .attr("transform", d => `translate(${x(d.value)},${y(d.rank)})`)
+            .call(g => g.select("tspan").tween("text", d => textTween((prev.get(d) || d).value, d.value))));
+    }
+    function setAxis(svg){
+        const g = svg.append("g")
+            .attr("transform", `translate(0,${margin.top})`);
+
+        const axis = d3.axisTop(x)
+            .ticks(width / 160, tickFormat)
+            .tickSizeOuter(0)
+            .tickSizeInner(-barSize * (n + y.padding()));
+
+        return (_, transition) => {
+            g.transition(transition).call(axis);
+            g.select(".tick:first-of-type text").remove();
+            g.selectAll(".tick:not(:first-of-type) line").attr("stroke", "white");
+            g.select(".domain").remove();
+        };
+    }
+    function setTicker(svg, keyFrames) {
+        const now = svg.append("text")
+            .style("font", `bold ${barSize}px var(--sans-serif)`)
+            .style("font-variant-numeric", "tabular-nums")
+            .attr("text-anchor", "end")
+            .attr("x", width - 6)
+            .attr("y", margin.top + barSize * (n - 0.45))
+            .attr("dy", "0.32em")
+            .text(formatDate(keyFrames[0][0]));
+
+        return ([date], transition) => {
+            transition.end().then(() => now.text(formatDate(date)));
+        };
+    }
+    function setColor(data){
+        console.log(typeof data)
+        const scale = d3.scaleOrdinal(d3.schemeTableau10);
+        if (data.some(d => d.category !== undefined)) {
+            const categoryByName = new Map(data.map(d => [d.name, d.category]))
+            scale.domain(categoryByName.values());
+            return d => scale(categoryByName.get(d.name));
+        }
+        return d => scale(d.name);
+    }
+    function textTween(a, b){
+        const i = d3.interpolateNumber(a, b);
+        return function(t) {
+            this.textContent = formatNumber(i(t));
+        };
+    }
+    async function chart(){
+        //replay;
+        const updateBars = setBars(svg);
+        const updateAxis = setAxis(svg);
+        const updateLabels = setLabels(svg);
+        //const updateTicker = setTicker(svg);
+
+        for (const keyframe of keyFrames) {
+        const transition = svg.transition()
+            .duration(duration)
+            .ease(d3.easeLinear);
+
+        // Extract the top bar’s value.
+        x.domain([0, keyframe[1][0].value]);
+
+        updateAxis(keyframe, transition);
+        updateBars(keyframe, transition);
+        updateLabels(keyframe, transition);
+        //updateTicker(keyframe, transition);
+
+        console.log(svg.node())
+        return svg.node()
+
+        invalidation.then(() => svg.interrupt());
+        await transition.end();
+        }
+        
+    }
+
+
+    // Clean & Ogranize the data & group date and carriers
+    data.then(function(data) {
+        data.forEach(function(f){
+            let temp = parseTime(f.date)
+            dates.push(temp)
+            f.date = temp
+            counts.push(f.count) 
+            carriers.add(f.UniqueCarrier)
+        })
+        dateValues = valueDates(data)
+        keyFrames = frameKeys(dateValues)
+        nameFrames = d3.groups(keyFrames.flatMap(([, data]) => data), d => d.name)
+        prev = new Map(nameFrames.flatMap(([, data]) => d3.pairs(data, (a, b) => [b, a])))
+        next = new Map(nameFrames.flatMap(([, data]) => d3.pairs(data)))
+        updateBars = setBars(svg)
+        updateAxis = setAxis(svg)
+        updateLabels = setLabels(svg)
+        updateTicker = setTicker(svg, keyFrames)
+
+        chart()
     })
-})
+
+
+ 
 
 </script>
 </body>
