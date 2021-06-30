@@ -8,7 +8,8 @@
 </head>
 <body>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <div><center><h1>33 Years of Flight Data</h1></center></div>
+    <div><center><h2>33 Years of Flight Data</h2></center></div>
+    <button id='reset' type="button" onclick=chart()>Reset</button>
     <svg></svg>
 <!-- http://using-d3js.com/04_04_working_with_dates.html -->
 <!-- style section-->
@@ -163,7 +164,6 @@
         };
     }
     function setColor(data){
-        console.log(typeof data)
         const scale = d3.scaleOrdinal(d3.schemeTableau10);
         if (data.some(d => d.category !== undefined)) {
             const categoryByName = new Map(data.map(d => [d.name, d.category]))
@@ -198,7 +198,6 @@
         updateLabels(keyframe, transition);
         //updateTicker(keyframe, transition);
 
-        console.log(svg.node())
         return svg.node()
 
         invalidation.then(() => svg.interrupt());
