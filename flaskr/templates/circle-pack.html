@@ -22,37 +22,26 @@
     
 
     //************ Data *******************
-    let data = d3.json("static/data/flights2.json")
+    let data = d3.json("static/data/flights88.json")
+    // schema: data.count, data.Code, data.Name
 
 
     const margin = {top: 16, right: 100, bottom: 6, left: 50}
     const width = 900 - margin.left - margin.right
     const height = 500
 
-    let dates = []
-    let counts = []
-    let carriers = new Set()
-    let tickFormat = d3.tickFormat(".0s")
     var formatNumber = d3.format(",d")
-    let lastDate = null
     const svg = d3.select("svg")
         .attr("viewBox", [0, 0, width, height]);
-    //const updateTicker = setTicker(svg);
-    const parseTime = d3.timeParse("%Y %m")    //Str to date
-    const formatDate = d3.timeFormat("%Y")  //Date to Str
-    const formatDate2 = d3.timeFormat("%b, %Y")  //Date to Str
-    const carrierColor = d3.scaleOrdinal(d3.schemePaired)
+    
+    const carrierColor = d3.scaleOrdinal(d3.schemePaired) 
     var diameter = 600;
 
-    data.then(function(data) {
-        data.forEach(function(f){
-            let temp = parseTime(f.date)
-            dates.push(temp)
-            f.date = temp
-            counts.push(f.count) 
-            carriers.add(f.UniqueCarrier)
-        })
+  
 
+    data.then(function(data) {
+
+        console.log(data)
         chart()     //Automatically Plays when browser loads
     })
 
@@ -69,14 +58,14 @@
             .size([diameter, diameter])
             .padding(1.5);
         
-        var nodes = d3.hierarchy(data)
-            .sum(function(d) { return d.count; });
-        
         const svg = d3.select("body")
             .append('svg')
             .attr("width", diameter)
             .attr("height", diameter)
             .attr("class", "bubble");
+        
+        var nodes = d3.hierarchy(data)
+            .sum(function(d) { return d.count; });
         
         var node = svg.selectAll(".node")
             .data(bubble(nodes).descendants())
@@ -92,42 +81,16 @@
 
         node.append("title")
             .text(function(d) {
-                return d.UniqueCarrier;
+                return d.Code;
             });
 
         node.append("circle")
             .attr("r", function(d) {
-                console.log('here at line 100')
                 return 5 //d.r; Need to dynamically configure radius length
             })
             .style("fill", function(d,i) {
-                console.log('here at line 104')
                 return carrierColor(i);
             });
-
-        node.append("text")
-            .attr("dy", ".2em")
-            .style("text-anchor", "middle")
-            .text(function(d) {
-                return d.data.UniqueCarrier;
-            })
-            .attr("font-family", "sans-serif")
-            .attr("font-size", function(d){
-                return d.r/5;
-            })
-            .attr("fill", "white");
-
-        node.append("text")
-            .attr("dy", "1.3em")
-            .style("text-anchor", "middle")
-            .text(function(d) {
-                return d.data.count;
-            })
-            .attr("font-family",  "Gill Sans", "Gill Sans MT")
-            .attr("font-size", function(d){
-                return d.r/5;
-            })
-            .attr("fill", "white");
 
         d3.select(self.frameElement)
             .style("height", diameter + "px");
