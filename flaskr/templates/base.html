@@ -10,7 +10,7 @@
 </head>
 <body>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <div><center><h2>33 Years of Flight Data</h2></center></div>
+    <div><center><h2>Air Carrier Market Share: 1998-2008</h2></center></div>
     <button id='reset' type="button" onclick=chart()>Reset</button>
     <input type="range" min="1" max="10" step="1" value="3" 
            data-orientation="vertical" oninput=setDuration(value)>
@@ -195,9 +195,87 @@
             this.textContent = formatNumber(i(t));
         };
     }
+    function box(g){
+        g.append('rect')
+            .attr('id', "text-bground")
+            .transition()
+            .duration(500)
+            .attr("x", 400)
+            .attr("y", 300)
+            .attr("width", 300)
+            .attr("height", 300)
+            .attr("fill", "black")
+            .attr("opacity", 0.1)
+    }
+    function infoTitle(g, title){
+        g.append("text")
+            .attr('id', "terrorTitle")
+            .transition()
+            .duration(1500)
+            .attr("x", 475)
+            .attr("y", 325)
+            .text(title)
+    }
+    function infoBody(g, body){
+        g.append("text")
+            .attr('id', "terrorText")
+            .transition()
+            .duration(1500)
+            .attr("x", 425)
+            .attr("y", 370)
+            .text(body)
+            //.call(wrap, content, g)
+    }
+    function wrap(g, content) {    //From Mike Bostock's Text Wrap Block: REF: https://bl.ocks.org/mbostock/7555321
+            let maxChars = 28
+            let words = content.split(/\s+/).reverse()
+            let word
+            let line = []
+            let lineNumber = 0
+            let lineY = 370
+            let lineIncr = 16
+            let y = 325
+            while (word = words.pop()) {
+                line.push(word);
+                if (line.join(" ").length > maxChars || words.length === 0) {
+                    lineY = lineY + lineIncr
+                    g.append("text")
+                        .attr("x", 425)
+                        .attr("y", lineY)
+                        .transition()
+                        .duration(1500)
+                        .text(line.join(" "));
+                    line = []
+                }
+            }
+    }
+    function terrorUp(){ 
+        let title = "September 11 2001"   
+        let body = "Al Quaida terrorist organization hijacks\
+                    three commercial aircraft. Two of the planes\
+                     were flown into the world trade\
+                    center towers. A third was flown into the Pentagon.\
+                    The fourth, which officials believe was targeting\
+                    the white house, crashed in Pennsylvania following\
+                    the heroric efforts of passengers."  
+
+        let g = svg.append('g')
+            .attr('id', "eventPopUp")
+            .attr("x", 300)
+            .attr("y", 300)
+
+        box(g)
+        infoTitle(g,title)
+        //infoBody(g,body) 
+        wrap(g, body)  
+
+    }
+    function tearDownPopUp(){ 
+        svg.select("#eventPopUp").remove()
+    }
     async function chart(){
         // Text event controllers
-        let sept11 = true
+        let isPopUpDown = true
 
         svg.selectAll("*").remove()
         const updateBars = setBars(svg);
@@ -210,24 +288,14 @@
             .duration(duration)
             .ease(d3.easeLinear);
 
-            // Add A Sample text event:
-            //console.log(formatDate(keyframe[0]))
-            //console.log(formatDate2(keyframe[0]))
-            if (formatDate2(keyframe[0])==='Aug, 2001' && sept11){
-                console.log("success")
-                console.log(keyframe)
-                sept11 = false
-                svg.append("text")
-                    .attr('id', "terror")
-                    .attr("x", 350)
-                    .attr("y", 350)
-                    .text("September 11, 2001 Terrorist Attacks.")
-            }
-            if (formatDate2(keyframe[0])==='Aug, 2003'){
-                svg.select("#terror").remove()
-            }
-
-
+            // Add A Sample text event:     //TODO Convert to Switch Block
+            // if (formatDate2(keyframe[0])==='Aug, 1990' && isPopUpDown){
+            //     isPopUpDown = false
+            //     terrorUp()
+            // }
+            // if (formatDate2(keyframe[0])==='Aug, 1992'){
+            //     tearDownPopUp()
+            // }
 
             // Extract the top bar’s value.
             x.domain([0, keyframe[1][0].value]);
@@ -241,8 +309,7 @@
             await transition.end();
             
         }
-        return svg.node()
-        
+        return svg.node()   
     }
 
 
