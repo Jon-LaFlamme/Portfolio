@@ -39,15 +39,15 @@ let data = d3.json("static/data/flights88.json")
 
 data.then(function(data){
     console.log(data)
+    data.children.sort((a, b) => d3.descending(a.count, b.count))
+    console.log(data)
     chart(data)
 })
 
 async function chart(data){
-    console.log("Inside chart function...")
-    console.log(data)
-
 
     var color = d3.scaleOrdinal(d3.schemeTableau10);
+    // Optional TODO: Grey out the nodes lower than rank 10
 
     var svg = d3.select("body")
                 .append("svg")
