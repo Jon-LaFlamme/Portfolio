@@ -5,14 +5,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-    <script src="static/js/raceChart.js"></script>
     <title>Narrative Viz for CS416</title>
 </head>
 <body>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <div><center><h2>Two Decades of Industry Consolidation</h2></center></div>
-    <svg preserveAspectRatio="xMidYMid meet"></svg>
-
+    <center>1998<input id='myslider' type="range" min="0" max="1" step="1" value="0" 
+    data-orientation="vertical" oninput=setYear(value)>2008</center>
+    <svg id=svg2 preserveAspectRatio="xMidYMid meet"></svg>
+    <a id=bubbleChart></a>
 <!-- style section-->
 <style></style>
 
@@ -20,40 +21,84 @@
     https://observablehq.com/@d3/bar-chart-race-explained-->
 <script>
 
+
 var width = 460
 var height = 460
-var diameter = 600;
+var diameter = 600
+var year = '1998'
 
-let data = d3.json("static/data/flights88.json") 
+const path88 = "static/data/flights88.json"
+const path08 = "static/data/flights08.json"
+const svg2 = d3.select("#svg2")
+        //.attr("viewBox", [0, 0, width, height])
+        .attr("width", diameter)
+        .attr("height", diameter)
+        .attr("class", "bubble");
 
-// function setColor(data){
-//         const scale = d3.scaleOrdinal(d3.schemeTableau10);
-//         if (data.some(d => d.category !== undefined)) {
-//             const categoryByName = new Map(data.map(d => [d.Code, d.category]))
-//             scale.domain(categoryByName.values());
-//             return d => scale(categoryByName.get(d.Code));
-//         }
-//         return d => scale(d.Code);
-// }
+//************** RangeSlider Adjust Playback Speed *****************
+//console.log(d3.select("#myslider")._groups[0][0].value)
+setYear(d3.select("#myslider")._groups[0][0].value)
+
+function setYear(t){
+        let dict = {0:path88,1:path08}
+        let dict2 = {0:"1998",1:"2008"}
+        year = dict2[t]
+        var path = dict[t]
+        data = loadData(path)
+    }
+
+// Three function that change the tooltip when user hover / move / leave a cell
+// REF: Tooltip courtesy of https://www.d3-graph-gallery.com/graph/interactivity_tooltip.html
+// create a tooltip
+var Tooltip = d3.select("#bubbleChart")
+    .append("p")
+    .style("opacity", 0)
+    .style("z-index", "10")
+    .attr("class", "tooltip")
+    .style("background-color", "white")
+    .style("border", "solid")
+    .style("border-width", "2px")
+    .style("border-radius", "5px")
+    .style("padding", "5px")
+
+var mouseoverBubble = function(d) {
+    Tooltip
+      .style("opacity", 1)
+    d3.select(this)
+      .style("stroke", "black")
+      .style("opacity", 1)
+  }
+  var mousemoveBubble = function(d) {
+    Tooltip
+      .html(d.Code  + " (" + d.Name + ") \nTotal Flights in " + year + ": " + d.count)
+      .style("left", (d3.pointer(this)[0]+70) + "px")
+      .style("top", (d3.pointer(this)[1]) + "px")
+  }
+  var mouseleaveBubble = function(d) {
+    Tooltip
+      .style("opacity", 0)
+    d3.select(this)
+      .style("stroke", "none")
+      .style("opacity", 0.8)
+  }
 
 
-data.then(function(data){
-    console.log(data)
-    data.children.sort((a, b) => d3.descending(a.count, b.count))
-    console.log(data)
-    chart(data)
-})
+// REF: courtesy- https://bl.ocks.org/johnwalley/e1d256b81e51da68f7feb632a53c3518
 
-async function chart(data){
+function loadData(p){
+    var data = d3.json(p)
+    data.then(function(data){
+        data.children.sort((a, b) => d3.descending(a.count, b.count))
+        chart(data)
+    })
+}
+
+function chart(data){
 
     var color = d3.scaleOrdinal(d3.schemeTableau10);
     // Optional TODO: Grey out the nodes lower than rank 10
 
-    var svg = d3.select("body")
-                .append("svg")
-                .attr("width", diameter)
-                .attr("height", diameter)
-                .attr("class", "bubble");
+    svg2.selectAll("*").remove()
 
     var bubble = d3.pack(data)
             .size([diameter, diameter])
@@ -62,7 +107,7 @@ async function chart(data){
     var nodes = d3.hierarchy(data)
             .sum(function(d) { return d.count; });
 
-    var node = svg.selectAll(".node")
+    var node = svg2.selectAll(".node")
             .data(bubble(nodes).descendants())
             .enter()
             .filter(function(d){
@@ -85,7 +130,10 @@ async function chart(data){
             })
             .style("fill", function(d,i) {
                 return color(i);
-            });
+            })
+            .on("mouseover", mouseoverBubble)
+            .on("mousemove", mousemoveBubble)
+            .on("mouseleave", mouseleaveBubble)
     
 
     node.append("text")
