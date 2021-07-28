@@ -26,15 +26,15 @@ var diameter = 600;
 
 let data = d3.json("static/data/flights88.json") 
 
-function setColor(data){
-        const scale = d3.scaleOrdinal(d3.schemeTableau10);
-        if (data.some(d => d.category !== undefined)) {
-            const categoryByName = new Map(data.map(d => [d.Code, d.category]))
-            scale.domain(categoryByName.values());
-            return d => scale(categoryByName.get(d.Code));
-        }
-        return d => scale(d.Code);
-}
+// function setColor(data){
+//         const scale = d3.scaleOrdinal(d3.schemeTableau10);
+//         if (data.some(d => d.category !== undefined)) {
+//             const categoryByName = new Map(data.map(d => [d.Code, d.category]))
+//             scale.domain(categoryByName.values());
+//             return d => scale(categoryByName.get(d.Code));
+//         }
+//         return d => scale(d.Code);
+// }
 
 
 data.then(function(data){
@@ -46,7 +46,9 @@ async function chart(data){
     console.log("Inside chart function...")
     console.log(data)
 
-    //var color = d3.scaleOrdinal(d3.schemeCategory20);
+
+    var color = d3.scaleOrdinal(d3.schemeTableau10);
+
     var svg = d3.select("body")
                 .append("svg")
                 .attr("width", diameter)
@@ -57,29 +59,34 @@ async function chart(data){
             .size([diameter, diameter])
             .padding(1.5);
 
-    svg.selectAll(".node")
-                .data(bubble)
-                .enter()
-                .append("g")
-                .attr("class", "node")
-                .attr("transform", function(d) {
-                    return "translate(" + d.x + "," + d.y + ")";
-                })
-                .append("circle")
-                .attr("r", function(d) {
-                    console.log(d)
-                    return d.count;
-                })
-                .style("fill", function(d,i) {
-                    return color(setColor(i));
-                });
+    var nodes = d3.hierarchy(data)
+            .sum(function(d) { return d.count; });
+
+    var node = svg.selectAll(".node")
+            .data(bubble(nodes).descendants())
+            .enter()
+            .filter(function(d){
+                return  !d.children
+            })
+            .append("g")
+            .attr("class", "node")
+            .attr("transform", function(d) {
+                return "translate(" + d.x + "," + d.y + ")";
+            });
                 
     node.append("title")
                 .text(function(d) {
                     return d.Code;
                 });
-
-
+    
+    node.append("circle")
+            .attr("r", function(d) {
+                return d.r;
+            })
+            .style("fill", function(d,i) {
+                return color(i);
+            });
+    
 
     node.append("text")
                 .attr("dy", ".2em")
