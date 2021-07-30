@@ -10,9 +10,11 @@
 <body>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <div><center><h2>Two Decades of Industry Consolidation</h2></center></div>
-    <center>1998<input id='myslider' type="range" min="0" max="1" step="1" value="0" 
+    
+    <center>1988<input id='myslider' type="range" min="0" max="1" step="1" value="0" 
     data-orientation="vertical" oninput=setYear(value)>2008</center>
-    <center><div id=bubbleChart><svg id=svg2 preserveAspectRatio="xMidYMid meet"></svg></div></center>
+    <center><div id=bubbleChart></div></center>
+    <center><div id=canvas></div></center>
 <!-- style section-->
 <style></style>
 
@@ -29,7 +31,8 @@ let formatCount = d3.format(',')
 
 const path88 = "static/data/flights88.json"
 const path08 = "static/data/flights08.json"
-const svg2 = d3.select("#svg2")
+const svg2 = d3.select("#canvas")
+        .append("svg")
         //.attr("viewBox", [0, 0, width, height])
         .attr("width", diameter)
         .attr("height", diameter)
@@ -41,7 +44,7 @@ setYear(d3.select("#myslider")._groups[0][0].value)
 
 function setYear(t){
         let dict = {0:path88,1:path08}
-        let dict2 = {0:"1998",1:"2008"}
+        let dict2 = {0:"1988",1:"2008"}
         year = dict2[t]
         var path = dict[t]
         data = loadData(path)
