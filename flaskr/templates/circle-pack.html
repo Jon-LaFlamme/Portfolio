@@ -74,6 +74,8 @@ function mousemoveBubble(d) {
     .html(info.Code  + " (" + info.Name + "): " + formatCount(info.count) + " flights in " + year)
       .style("left", (d3.pointer(this)[0]+70) + "px")
       .style("top", (d3.pointer(this)[1]) + "px")
+      .style("stroke", "white")
+      .style("fill", "black")
   }
 function mouseleaveBubble(d) {
     Tooltip
@@ -96,7 +98,14 @@ function loadData(p){
 
 function chart(data){
 
-    var color = d3.scaleOrdinal(d3.schemeTableau10);
+    var color = d3.scaleOrdinal(d3.schemeTableau10)
+
+    function assignColor(d,i){
+        if (i < 10) { return color(i)
+        } else { return "black"} //#cccccc
+    }
+
+    ;
     // Optional TODO: Grey out the nodes lower than rank 10
 
     svg2.selectAll("*").remove()
@@ -131,7 +140,7 @@ function chart(data){
                 return d.r;
             })
             .style("fill", function(d,i) {
-                return color(i);
+                return assignColor(d,i);
             })
             .on("mouseover", mouseoverBubble)
             .on("mousemove", mousemoveBubble)
