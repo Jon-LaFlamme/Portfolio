@@ -12,7 +12,7 @@
     <div><center><h2>Two Decades of Industry Consolidation</h2></center></div>
     <center>1998<input id='myslider' type="range" min="0" max="1" step="1" value="0" 
     data-orientation="vertical" oninput=setYear(value)>2008</center>
-    <svg id=svg2 preserveAspectRatio="xMidYMid meet"></svg>
+    <center><svg id=svg2 preserveAspectRatio="xMidYMid meet"></svg></center>
     <a id=bubbleChart></a>
 <!-- style section-->
 <style></style>
@@ -53,12 +53,14 @@ function setYear(t){
 // create a tooltip
 var Tooltip = d3.select("#bubbleChart")
     .append("div")
+    .style("width", "150px")
     .style("opacity", 0)
     .attr("class", "tooltip")
-    .style("background-color", "white")
+    .style("background-color", "black")
+    .style("color", "white")
     .style("border", "solid")
     .style("border-width", "3px")
-    .style("border-radius", "5px")
+    .style("border-radius", "15px")
     .style("padding", "5px")
 
 function mouseoverBubble(d) {
@@ -104,8 +106,6 @@ function chart(data){
         if (i < 10) { return color(i)
         } else { return "black"} //#cccccc
     }
-
-    ;
     // Optional TODO: Grey out the nodes lower than rank 10
 
     svg2.selectAll("*").remove()
