@@ -9,5 +9,5 @@ import random
 @app.route('/')
 def home():
 
-    return render_template('circle-pack.html')
+    return render_template('dataviz.html')
 

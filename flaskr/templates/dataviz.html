@@ -8,7 +8,7 @@
     <script src="static/js/raceChart.js"></script>
     <title>Narrative Viz for CS416</title>
 </head>
-<body>
+<body id="body">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <div><center><h2>Air Carrier Market Share: 1998-2008</h2></center></div>
     <center><button id='reset' type="button" onclick=chart()>&nbsp&nbsp&nbspReset</button>
@@ -17,13 +17,10 @@
     <div>&nbsp</div>
     <div>&nbsp</div>
     <center><svg preserveAspectRatio="xMidYMid meet"></svg></center>
-
-<!-- style section-->
 <style></style>
-
-<!-- Code adapted from @Mike Bostock's Race Chart: 
-    https://observablehq.com/@d3/bar-chart-race-explained-->
-<script type="text/javascript">
+<script id="racechart" type="text/javascript">
+    //Code adapted from @Mike Bostock's Race Chart: 
+    //https://observablehq.com/@d3/bar-chart-race-explained
     
     //************** RangeSlider Adjust Playback Speed *****************
     function setDuration(t){
@@ -54,7 +51,7 @@
     var formatNumber = d3.format(",d")
     let lastDate = null
     const svg = d3.select("svg")
-        //.attr("viewBox", [0, 0, width, height]);
+        //attr("viewBox", [0, 0, width, height]);
         .attr("width", 800)
         .attr("height", 500)
     //const updateTicker = setTicker(svg);
@@ -165,8 +162,8 @@
             var date = keyFrames[0][0]
             lastDate = date}
         catch (error) {
-            console.error(error)
-            console.log("corrupt date field: " + lastDate + " used instead.")
+            //console.error(error)
+            //console.log("corrupt date field: " + lastDate + " used instead.")
             var date = lastDate
         }   
         const now = svg.append("text")
@@ -338,11 +335,174 @@
         chart()     //Automatically Plays when browser loads
     })
 </script>
-<div>&nbsp</div>
-<div>&nbsp</div>
-<center><div>Text section to describe race chart</div></center>
-<div>&nbsp</div>
-<div>&nbsp</div>
+<div id="racechart-explainer">
+    <div>&nbsp</div>
+    <div>&nbsp</div>
+    <center><div>Text section to describe race chart. Text section to describe race chart. Text section to describe race chart. Text section to describe race chart. Text section to describe race chart.</div></center>
+    <div>&nbsp</div>
+    <div>&nbsp</div>
+    <div><center><h2>Two Decades of Industry Consolidation</h2></center></div>
+        
+        <center>1988<input id='myslider' type="range" min="0" max="1" step="1" value="0" 
+        data-orientation="vertical" oninput=setYear(value)>2008</center>
+        <center><div id=bubbleChart></div></center>
+        <center><div id=canvas></div></center>
+    <!-- style section-->
+    <style></style>
+</div>
+<script id="bubble-chart">
+var width2 = 460
+var height2 = 460
+var diameter = 600
+var year = '1988'
+let formatCount = d3.format(',')
 
+const path88 = "static/data/flights88.json"
+const path08 = "static/data/flights08.json"
+const svg2 = d3.select("#canvas")
+        .append("svg")
+        //.attr("viewBox", [0, 0, width2, height2])
+        .attr("width", diameter)
+        .attr("height", diameter)
+        .attr("class", "bubble");
+
+console.log("in bubble chart section")
+
+//************** RangeSlider Adjust Playback Speed *****************
+//console.log(d3.select("#myslider")._groups[0][0].value)
+setYear(d3.select("#myslider")._groups[0][0].value)
+
+function setYear(t){
+        let dict = {0:path88,1:path08}
+        let dict2 = {0:"1988",1:"2008"}
+        year = dict2[t]
+        var path = dict[t]
+        data2 = loadData(path)
+    }
+
+// Three function that change the tooltip when user hover / move / leave a cell
+// REF: Tooltip courtesy of https://www.d3-graph-gallery.com/graph/interactivity_tooltip.html
+// create a tooltip
+var Tooltip = d3.select("#bubbleChart")
+    .append("div")
+    .style("width", "150px")
+    .style("opacity", 0)
+    .attr("class", "tooltip")
+    .style("background-color", "black")
+    .style("color", "white")
+    .style("border", "solid")
+    .style("border-width", "3px")
+    .style("border-radius", "15px")
+    .style("padding", "5px")
+
+function mouseoverBubble(d) {
+    Tooltip
+      .style("opacity", 1)
+    d3.select(this)
+      .style("stroke", "black")
+      .style("opacity", 1)
+}
+function mousemoveBubble(d) {
+    info = d.path[0].__data__.data  //Extract data element from ancestory node
+    Tooltip
+    .html(info.Code  + " (" + info.Name + "): " + formatCount(info.count) + " flights in " + year)
+      .style("left", (d3.pointer(this)[0]+70) + "px")
+      .style("top", (d3.pointer(this)[1]) + "px")
+      .style("stroke", "white")
+      .style("fill", "black")
+  }
+function mouseleaveBubble(d) {
+    Tooltip
+      .style("opacity", 0)
+    d3.select(this)
+      .style("stroke", "none")
+      .style("opacity", 0.8)
+  }
+
+
+// REF: courtesy- https://bl.ocks.org/johnwalley/e1d256b81e51da68f7feb632a53c3518
+
+function loadData(p){
+    var data2 = d3.json(p)
+    data2.then(function(data){
+        data.children.sort((a, b) => d3.descending(a.count, b.count))
+        chart2(data)
+    })
+}
+
+function chart2(data){
+
+    var color = d3.scaleOrdinal(d3.schemeTableau10)
+
+    function assignColor(d,i){
+        if (i < 10) { return color(i)
+        } else { return "black"} //#cccccc
+    }
+    // Optional TODO: Grey out the nodes lower than rank 10
+
+    svg2.selectAll("*").remove()
+
+    var bubble = d3.pack(data)
+            .size([diameter, diameter])
+            .padding(1.5);
+
+    var nodes = d3.hierarchy(data)
+            .sum(function(d) { return d.count; });
+
+    var node = svg2.selectAll(".node")
+            .data(bubble(nodes).descendants())
+            .enter()
+            .filter(function(d){
+                return  !d.children
+            })
+            .append("g")
+            .attr("class", "node")
+            .attr("transform", function(d) {
+                return "translate(" + d.x + "," + d.y + ")";
+            });
+                
+    node.append("title")
+                .text(function(d) {
+                    return d.Code;
+                });
+    
+    node.append("circle")
+            .attr("class", "bubbles")
+            .attr("r", function(d) {
+                return d.r;
+            })
+            .style("fill", function(d,i) {
+                return assignColor(d,i);
+            })
+            .on("mouseover", mouseoverBubble)
+            .on("mousemove", mousemoveBubble)
+            .on("mouseleave", mouseleaveBubble)
+    
+
+    node.append("text")
+                .attr("dy", ".2em")
+                .style("text-anchor", "middle")
+                .text(function(d) {
+                    return d.data.Code;
+                })
+                .attr("font-family", "sans-serif")
+                .attr("font-size", function(d){
+                    return d.r/5;
+                })
+                .attr("fill", "white");
+
+    d3.select(self.frameElement)
+                .style("height", diameter + "px");
+}
+    
+</script>
+<div id="bubble-chart-explainer">
+    <div>&nbsp</div>
+    <div>&nbsp</div>
+    <center><div>Text section to describe bubble chart</div></center>
+    <div>&nbsp</div>
+    <div>&nbsp</div>
+    <style></style>
+</div>
 </body>
 </html>
