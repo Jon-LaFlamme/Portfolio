@@ -25,7 +25,8 @@
 var width = 460
 var height = 460
 var diameter = 600
-var year = '1998'
+var year = '1988'
+let formatCount = d3.format(',')
 
 const path88 = "static/data/flights88.json"
 const path08 = "static/data/flights08.json"
@@ -51,30 +52,30 @@ function setYear(t){
 // REF: Tooltip courtesy of https://www.d3-graph-gallery.com/graph/interactivity_tooltip.html
 // create a tooltip
 var Tooltip = d3.select("#bubbleChart")
-    .append("p")
+    .append("div")
     .style("opacity", 0)
-    .style("z-index", "10")
     .attr("class", "tooltip")
     .style("background-color", "white")
     .style("border", "solid")
-    .style("border-width", "2px")
+    .style("border-width", "3px")
     .style("border-radius", "5px")
     .style("padding", "5px")
 
-var mouseoverBubble = function(d) {
+function mouseoverBubble(d) {
     Tooltip
       .style("opacity", 1)
     d3.select(this)
       .style("stroke", "black")
       .style("opacity", 1)
-  }
-  var mousemoveBubble = function(d) {
+}
+function mousemoveBubble(d) {
+    info = d.path[0].__data__.data  //Extract data element from ancestory node
     Tooltip
-      .html(d.Code  + " (" + d.Name + ") \nTotal Flights in " + year + ": " + d.count)
+    .html(info.Code  + " (" + info.Name + "): " + formatCount(info.count) + " flights in " + year)
       .style("left", (d3.pointer(this)[0]+70) + "px")
       .style("top", (d3.pointer(this)[1]) + "px")
   }
-  var mouseleaveBubble = function(d) {
+function mouseleaveBubble(d) {
     Tooltip
       .style("opacity", 0)
     d3.select(this)
@@ -125,6 +126,7 @@ function chart(data){
                 });
     
     node.append("circle")
+            .attr("class", "bubbles")
             .attr("r", function(d) {
                 return d.r;
             })
