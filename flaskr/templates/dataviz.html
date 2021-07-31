@@ -11,10 +11,10 @@
 <body id="body">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <div><center><h2>Air Carrier Market Share: 1988-2008</h2></center></div>
-    <div><center><p>Watch how air carriers competed for domestic market share from 1988-2008</p></center></div>
+    <div><center><p>Watch how air carriers competed for domestic market share from 1988-2008.<br>Which carrier do you think will finish ahead of the others?</p></center></div>
     <center><button id='reset' type="button" onclick=chart()>&nbsp&nbsp&nbspReset</button>
     <input type="range" min="1" max="10" step="1" value="3" 
-           data-orientation="vertical" oninput=setDuration(value)> Adjust Speed</center>
+           data-orientation="vertical" oninput=setDuration(value)> (Adjust Speed)</center>
     <div>&nbsp</div>
     <div>&nbsp</div>
     <center><div id=raceChartTicker></div></center>
@@ -350,9 +350,15 @@
 <div id="racechart-explainer">
     <div>&nbsp</div>
     <div>&nbsp</div>
-    <center><div>Text section to describe race chart. Text section to describe race chart. Text section to describe race chart. Text section to describe race chart. Text section to describe race chart.</div></center>
-    <div>&nbsp</div>
-    <div>&nbsp</div>
+    <div><hr></div>
+    <div><center>
+        <p>Now that you've seen the progression of leading airlines from 1988-2008, let's take a step back 
+        <br>and look at the bigger picture of how the landscape differed between 1988 and 2008. The bubbles 
+        <br>represent the number of flights for each carrier for the selected year. You can toggle between 
+        <br>years using the slider bar, and you can hover over a bubble for addional details. You can also 
+        <br>filter airlines based on how many flights they recorded in a single year.
+        </p>
+    </center></div>
     <div><center><h2>Two Decades of Industry Consolidation</h2></center></div>
         
         <center>1988<input id='myslider' type="range" min="0" max="1" step="1" value="0" 
@@ -555,8 +561,6 @@ function chart2(data){
 </script>
 <div id="bubble-chart-explainer">
     <div>&nbsp</div>
-    <div>&nbsp</div>
-    <center><div>Text section to describe bubble chart</div></center>
     <div>&nbsp</div>
     <div>&nbsp</div>
     <style></style>
