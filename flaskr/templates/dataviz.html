@@ -163,8 +163,6 @@
             var date = keyFrames[0][0]
             lastDate = date}
         catch (error) {
-            //console.error(error)
-            //console.log("corrupt date field: " + lastDate + " used instead.")
             var date = lastDate
         }   
         const now = svg.append("text")
@@ -389,15 +387,13 @@ const svg2 = d3.select("#canvas")
 
 
 //************** RangeSlider Adjust Playback Speed *****************
-//console.log(d3.select("#myslider")._groups[0][0].value)
 setYear(d3.select("#myslider")._groups[0][0].value)
 
 function setOpacityCondition(n){
-    console.log(n)
     n.forEach(function(d){
 
         ct = d.__data__.data.count
-        if (ct > rangeMin) {
+        if (ct >= rangeMin) {
             d.style.fillOpacity = ".9"
             }
         else{
@@ -537,6 +533,9 @@ function chart2(data){
 
     d3.select(self.frameElement)
                 .style("height", diameter + "px");
+    
+    filterBubbles(rangeMin)
+    
 }
     
 </script>
