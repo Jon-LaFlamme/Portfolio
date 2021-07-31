@@ -351,19 +351,19 @@
             <input type="radio" id="showAll" oninput=filterBubbles(value) name="drone" value="0">
             <label for="showAll">show all</label>
             <input type="radio" id="show100k" oninput=filterBubbles(value) name="drone" value="100000">
-            <label for="showAll">100k+ flights</label>
+            <label for="showAll">100k+</label>
             <input type="radio" id="show200k" oninput=filterBubbles(value) name="drone" value="200000">
-            <label for="showAll">200k+ flights</label>
+            <label for="showAll">200k+</label>
             <input type="radio" id="show300k" oninput=filterBubbles(value) name="drone" value="300000">
-            <label for="showAll">300k+ flights</label>
+            <label for="showAll">300k+</label>
             <input type="radio" id="show400k" oninput=filterBubbles(value) name="drone" value="400000">
-            <label for="showAll">400k+ flights</label>
+            <label for="showAll">400k+</label>
             <input type="radio" id="show500k" oninput=filterBubbles(value) name="drone" value="500000">
-            <label for="showAll">500k+ flights</label>
+            <label for="showAll">500k+</label>
             <input type="radio" id="show600k" oninput=filterBubbles(value) name="drone" value="600000">
-            <label for="showAll">600k+ flights</label>
+            <label for="showAll">600k+</label>
             <input type="radio" id="show700k" oninput=filterBubbles(value) name="drone" value="700000">
-            <label for="showAll">700k+ flights</label> 
+            <label for="showAll">700k+</label> 
         </center>
         <div>&nbsp</div>
         <center><div id=bubbleChart></div></center>
@@ -387,11 +387,34 @@ const svg2 = d3.select("#canvas")
         .attr("height", diameter)
         .attr("class", "bubble");
 
-console.log("in bubble chart section")
 
 //************** RangeSlider Adjust Playback Speed *****************
 //console.log(d3.select("#myslider")._groups[0][0].value)
 setYear(d3.select("#myslider")._groups[0][0].value)
+
+function setOpacityCondition(n){
+    console.log(n)
+    n.forEach(function(d){
+
+        ct = d.__data__.data.count
+        if (ct > rangeMin) {
+            d.style.fillOpacity = ".9"
+            }
+        else{
+            d.style.fillOpacity = ".1"
+        }
+    })
+}
+
+var rangeMin = 0
+
+function filterBubbles(v){
+        rangeMin = v
+        var temp = svg2.selectAll("circle").selectAll("circle")
+        setOpacityCondition(temp._parents)
+}
+
+
 
 function setYear(t){
         let dict = {0:path88,1:path08}
