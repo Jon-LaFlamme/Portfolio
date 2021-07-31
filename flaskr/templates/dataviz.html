@@ -17,6 +17,7 @@
            data-orientation="vertical" oninput=setDuration(value)> Adjust Speed</center>
     <div>&nbsp</div>
     <div>&nbsp</div>
+    <center><div id=raceChartTicker></div></center>
     <center><svg preserveAspectRatio="xMidYMid meet"></svg></center>
 <style></style>
 <script id="racechart" type="text/javascript">
@@ -27,6 +28,10 @@
     function setDuration(t){
         let dict = {1:300,2:250,3:200,4:150,5:100,6:50,7:10,8:1,9:.1,10:.01}
         duration = dict[t]
+    }
+
+    function setRaceChartTicker(date){
+        console.log(date)
     }
     
     //************ Data *******************
@@ -58,7 +63,7 @@
     //const updateTicker = setTicker(svg);
     const parseTime = d3.timeParse("%Y %m")    //Str to date
     const formatDate = d3.timeFormat("%Y")  //Date to Str
-    const formatDate2 = d3.timeFormat("%b, %Y")  //Date to Str
+    const formatDate2 = d3.timeFormat("%Y: %B")  //Date to Str
     const carrierColor = d3.scaleOrdinal(d3.schemePaired)
     const transition = svg.transition().duration(duration).ease(d3.easeLinear);
 
@@ -168,15 +173,23 @@
         const now = svg.append("text")
             .style("font", `bold ${barSize}px var(--sans-serif)`)
             .style("font-variant-numeric", "tabular-nums")
-            .attr("text-anchor", "end")
-            .attr("x", width - 6)
-            .attr("y", margin.top + barSize * (n - 0.45))
+            .style("border", "solid")
+            .style("font-size", "34px")
+            .style("border-width", "3px")
+            .style("border-radius", "15px")
+            .style("padding", "5px")
+            .style("stroke", "black")
+            .attr("text-anchor", "beginning")
+            // .attr("x", width - 100)
+            // .attr("y", margin.top + barSize * (n - 0.45))
+            .attr("x", 52)
+            .attr("y", 42)
             .attr("dy", "0.32em")
-            .text(formatDate(date));
+            //.text(formatDate(date));
 
         return ([date], transition) => {
             //TODO FIX the Date Format Issue for the Ticker. 
-            transition.end().then(() => now.text(formatDate(date)));
+            transition.end().then(() => now.text(formatDate2(date)));
         };
     }
     function setColor(data){
