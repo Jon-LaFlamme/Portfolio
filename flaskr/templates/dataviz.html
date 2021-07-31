@@ -10,7 +10,8 @@
 </head>
 <body id="body">
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <div><center><h2>Air Carrier Market Share: 1998-2008</h2></center></div>
+    <div><center><h2>Air Carrier Market Share: 1988-2008</h2></center></div>
+    <div><center><p>Watch how air carriers competed for domestic market share from 1988-2008</p></center></div>
     <center><button id='reset' type="button" onclick=chart()>&nbsp&nbsp&nbspReset</button>
     <input type="range" min="1" max="10" step="1" value="3" 
            data-orientation="vertical" oninput=setDuration(value)> Adjust Speed</center>
@@ -345,6 +346,26 @@
         
         <center>1988<input id='myslider' type="range" min="0" max="1" step="1" value="0" 
         data-orientation="vertical" oninput=setYear(value)>2008</center>
+        <center>
+            <div>&nbsp</div>
+            <input type="radio" id="showAll" oninput=filterBubbles(value) name="drone" value="0">
+            <label for="showAll">show all</label>
+            <input type="radio" id="show100k" oninput=filterBubbles(value) name="drone" value="100000">
+            <label for="showAll">100k+ flights</label>
+            <input type="radio" id="show200k" oninput=filterBubbles(value) name="drone" value="200000">
+            <label for="showAll">200k+ flights</label>
+            <input type="radio" id="show300k" oninput=filterBubbles(value) name="drone" value="300000">
+            <label for="showAll">300k+ flights</label>
+            <input type="radio" id="show400k" oninput=filterBubbles(value) name="drone" value="400000">
+            <label for="showAll">400k+ flights</label>
+            <input type="radio" id="show500k" oninput=filterBubbles(value) name="drone" value="500000">
+            <label for="showAll">500k+ flights</label>
+            <input type="radio" id="show600k" oninput=filterBubbles(value) name="drone" value="600000">
+            <label for="showAll">600k+ flights</label>
+            <input type="radio" id="show700k" oninput=filterBubbles(value) name="drone" value="700000">
+            <label for="showAll">700k+ flights</label> 
+        </center>
+        <div>&nbsp</div>
         <center><div id=bubbleChart></div></center>
         <center><div id=canvas></div></center>
     <!-- style section-->
