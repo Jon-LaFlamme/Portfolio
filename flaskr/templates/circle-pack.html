@@ -111,7 +111,8 @@ function chart(data){
     // Optional TODO: Grey out the nodes lower than rank 10
 
     svg2.selectAll("*").remove()
-
+    //REF Courtesy of Alok K Shukla: https://bl.ocks.org/alokkshukla/3d6be4be0ef9f6977ec6718b2916d168
+    
     var bubble = d3.pack(data)
             .size([diameter, diameter])
             .padding(1.5);
