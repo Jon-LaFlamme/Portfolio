@@ -26,4 +26,8 @@ $ export FLASK_ENV=development
 
 $ flask run
 
+Production:::
+
+env:FLASK_APP = "flaskr"
+$ flask run --host=0.0.0.0 --port=80 &
 HINT: "Cmd" + "Shift" + "r" for browser cache reset
